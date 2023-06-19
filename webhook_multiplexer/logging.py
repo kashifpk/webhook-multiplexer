@@ -19,7 +19,7 @@ log_config = {
         },
     },
     "loggers": {
-        "sensorhub": {"handlers": ["default"], "level": "DEBUG"},
+        "webhook_multiplexer": {"handlers": ["default"], "level": "DEBUG"},
     }
 }
 

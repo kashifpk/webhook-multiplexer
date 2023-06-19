@@ -1,4 +1,5 @@
 import uuid
+import logging
 
 import httpx
 from fastapi import APIRouter, status, Depends, HTTPException, Request
@@ -7,6 +8,7 @@ from .data import forwards_data
 from .depends import authenticated_request
 from .schemas import CreateForwardRequest
 
+log = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -56,20 +58,25 @@ async def post_forwarder(endpoint: str, request: Request):
         endpoint = "/" + endpoint
 
     if endpoint in forwards_data._data:
-        print("Matched routes")
+        log.info("Matched routes")
         request_body = await request.body()
 
         for target_url in forwards_data._data[endpoint].keys():
-            print(target_url)
+            log.info(target_url)
 
             async with httpx.AsyncClient() as client:
-                await client.post(
-                    target_url,
-                    headers=request.headers,
-                    params=request.query_params,
-                    cookies=request.cookies,
-                    content=request_body
-                )
+                try:
+                    await client.post(
+                        target_url,
+                        headers=request.headers,
+                        params=request.query_params,
+                        cookies=request.cookies,
+                        content=request_body
+                    )
+                except httpx.ConnectError as exp:
+                    log.warning(f"Failed to connect to {target_url}")
+                    log.debug(str(exp))
+
 
 
     # print(endpoint)
