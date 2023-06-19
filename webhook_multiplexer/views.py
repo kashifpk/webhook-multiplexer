@@ -60,24 +60,31 @@ async def post_forwarder(endpoint: str, request: Request):
     if endpoint in forwards_data._data:
         log.info("Matched routes")
         request_body = await request.body()
+        headers = dict(request.headers)
+
+        purge_header_keys = ['host', 'connection']
+        for header_key in purge_header_keys:
+            if header_key in headers:
+                del headers[header_key]
 
         for target_url in forwards_data._data[endpoint].keys():
             log.info(target_url)
 
-            async with httpx.AsyncClient() as client:
-                try:
-                    await client.post(
-                        target_url,
-                        headers=request.headers,
-                        params=request.query_params,
-                        cookies=request.cookies,
-                        content=request_body
-                    )
-                except httpx.ConnectError as exp:
-                    log.warning(f"Failed to connect to {target_url}")
-                    log.debug(str(exp))
-
-
+            client = request.state.client
+            try:
+                # log.info(f"Sending data to {target_url}")
+                # log.info(request_body.decode('utf8'))
+                r = await client.post(
+                    target_url,
+                    headers=headers,
+                    params=request.query_params,
+                    cookies=request.cookies,
+                    content=request_body
+                )
+                log.info(r)
+            except httpx.ConnectError as exp:
+                log.warning(f"Failed to connect to {target_url}")
+                log.debug(str(exp))
 
     # print(endpoint)
     # print(request.method)
