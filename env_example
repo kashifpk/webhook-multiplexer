@@ -1,0 +1,12 @@
+ENVIRONMENT=development
+# ENVIRONMENT=production
+DEBUG=True
+
+SECRET_KEY='0000cc1a835d7af160c8dcda9bc814a07002e23aacfeb3cefdff674972c583f0'
+
+MIDDLEWARE_SECRET_KEY = 'change-me'
+
+# Can also be changed in actual production                                                                                                                      SENSORHUB_DB_URL='postgresql+psycopg://sensorhub:Test123!@localhost/sensorhub'
+DATA_FILE='forwards.json'
+
+AUTH_TOKEN='change-me'
